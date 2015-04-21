@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>EventManager test</title>
+    </head>
+    <body>
+        <button id="button" type="button">Click there Dude!</button>
+        
+        <script src="event-manager.min.js"></script>
+        <script>
+            
+            var ClassOne = function()
+            {
+                EventManager.makeEventAware(this);
+                
+                var attribute = 'Default attribute';
+                
+                this.setAttribute = function(value)
+                {
+                    attribute = value;
+                };
+                
+                this.addEventListener('test-event', function()
+                {
+                    console.log('Receive event. Attribute is ' + attribute);
+                });
+            }
+            
+            
+            
+            var ClassTwo = function()
+            {
+                this.display = function(data)
+                {
+                    console.log('Execute ClassTwo\'s display function with data: ' + data);
+                };
+            };
+            
+            
+            
+            var ClassThree = function()
+            {
+                this.exec = function()
+                {
+                    console.log('Trigger event');
+                    this.emit('test-event', 'Custom data');
+                    
+                    console.log('Do some other work then...');
+                    for (var i = 0; i < 100000; ++i)
+                    {
+                        if (i % 10000 == 0)
+                        {
+                            console.log(i / 10000);
+                        }
+                    }
+                    console.log('Work done');
+                };
+            }
+            EventManager.makeEventAware(ClassThree);
+            
+            
+            
+            var oneA = new ClassOne();
+            var oneB = new ClassOne();
+            oneB.setAttribute('oneB specific attribute');
+            
+            var twoA = new ClassTwo();
+            EventManager.makeEventAware(twoA);
+            twoA.addEventListener('test-event', twoA.display);
+            var twoB = new ClassTwo();// Is not event-aware, so will do nothing.
+            
+            var three = new ClassThree();
+            document.getElementById('button').addEventListener('click', function(event)
+            {
+                event.preventDefault();
+                three.exec();
+            });
+            
+        </script>
+    </body>
+</html>
